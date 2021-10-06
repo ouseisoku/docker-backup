@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+
+  caddy:
+    image: caddy:2
+    container_name: caddy
+    restart: always
+    ports:
+      - 80:80  # Needed for the ACME HTTP-01 challenge.
+      - 443:443
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./caddy-config:/config
+      - ./caddy-data:/data
+    environment:
+      - ALIYUN_DOMAIN=http(s)://aliyunwebdev.example.com  # Your domain, prefixed with http or https.
+      - EMAIL=admin@example.com       # The email address to use for ACME registration.
+      - LOG_FILE=/data/access.log
+
+  aliyunwebdev:
+    image: zx5253/webdav-aliyundriver:latest
+    container_name: webdav-aliyundriver
+    restart: always
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - ./aliyun-driver/:/etc/aliyun-driver/
+    environment:
+      - TZ=Asia/Shanghai
+      - ALIYUNDRIVE_REFRESH_TOKEN=xxxxxxxxxxxxxx # Token of your Alibaba Cloud Disk.
+      - ALIYUNDRIVE_AUTH_PASSWORD=xxxxxxxxxxxxxx # Your webdev user password.
+
